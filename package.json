@@ -1,0 +1,19 @@
+{
+  "name": "node-red-sanitize",
+  "license": "APACHE",
+  "version": "0.0.1",
+  "description": "Sanitize JSON as per user requirement",
+  "dependencies": {},
+  "keywords": [
+    "node-red",
+    "sanitize"
+  ],
+  "author": {
+    "name": "Abhijit Suresh"
+  },
+  "node-red": {
+    "nodes": {
+      "filter-filename": "sanitizer.js"
+    }
+  }
+}
