@@ -16,7 +16,7 @@
 
 module.exports = function(RED) {
     "use strict";
-     var util = require('util')
+     var util = require('util');
 
     function sanitizerNode(n) {
 	
@@ -34,6 +34,14 @@ module.exports = function(RED) {
 				}
 			}
 		}
+		
+		if(node.sanitizerType=="simple"){
+			msg.payload = simpleSanitizeJSON(msg.payload);
+		}
+		else if(node.sanitizerType="escape"){
+			msg.payload =escape(msg.payload);
+		}
+
 
 		if(typeof msg.payload == "string"){
 				if(node.exportType == "string") node.send(msg);
@@ -53,6 +61,10 @@ module.exports = function(RED) {
 
         });
     }
+
+    function simpleSanitizeJSON(msg){	
+    	return msg.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\f/g, "\\f").replace(/"/g,"\\\"").replace	(/'/g,"\\\'").replace(/\&/g, "\\&"); 
+   }
 
     RED.nodes.registerType("sanitizer",sanitizerNode);
 
