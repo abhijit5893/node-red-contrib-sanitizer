@@ -19,23 +19,15 @@
 <script type="text/x-red" data-template-name="sanitizer">
   <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-    <input type="text" id="node-input-name" placeholder="Name (Optional)">
+    <input type="text" id="node-input-name" >
   </div>
   <div class="form-row">
-    <label for="node-input-sanitizerType"><i class="icon-filter"></i>Type</label>
-    <select type="text" id="node-input-sanitizerType">
-	<option value="none" selected="selected">Dont Sanitize</option>
+    <label for="node-input-sanitizerType"><i class="icon-filter"></i> Sanitizer Type</label>
+    <select id="node-input-sanitizerType" placeholder="SelectType">
+	<option value="none">Dont Sanitize</option>
 	<option value="simple">Simple Sanitizer</option>
     </select>	
   </div>
-  <div class="form-row">
-    <label for="node-input-exportType"><i class="icon-tag"></i> Export as:</label>
-    <select type="text" id="node-input-exportType" placeholder="Export as:" >
-	<option value="string" selected="selected">Export as string</option>
-	<option value="json">Export as JSON</option>
-    </select>
-  </div>
-
   </div>
 </script>
 
@@ -49,8 +41,7 @@
         , color: '#DEBD5C'
         , defaults: {
             name: { value:"" }
-          , sanitizerType: { value: "none", required:true }
-	  , exportType: {value:"string", required:true}
+          , sanitizerType: { value: "", required:true }
         }
         , inputs: 1
         , outputs: 1

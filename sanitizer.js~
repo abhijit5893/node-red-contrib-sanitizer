@@ -15,38 +15,15 @@
  **/
 
 module.exports = function(RED) {
-    "use strict";
-     var util = require('util')
 
     function sanitizerNode(n) {
-	
-        RED.nodes.createNode(this,n);
-	this.sanitizerType = n.sanitizerType;
-	this.exportType = n.exportType;
 
+        RED.nodes.createNode(this,n);
+        this.topic = n.topic;
         var node = this;
 
         this.on('input', function (msg) {
-		if(msg.hasOwnProperty("payload")){
-			if(typeof msg.payload == "object"){
-				if((!Buffer.isBuffer(msg.payload)) && (!util.isArray(msg.payload))){
-					msg.payload = JSON.stringify(msg.payload)
-				}
-			}
-		}
-
-		if(typeof msg.payload == "string"){
-				if(node.exportType == "string") node.send(msg);
-				else if(node.exportType == "json"){
-					try {
-						msg.payload = JSON.parse(msg.payload);
-						node.send(msg);
-					    }
-					    catch(e) { node.error(e.message,msg); }
-
-				}
-			}
-	
+            node.send(msg);
         });
 
         this.on("close", function() {
