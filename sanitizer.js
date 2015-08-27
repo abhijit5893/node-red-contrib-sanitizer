@@ -17,12 +17,18 @@
 module.exports = function(RED) {
     "use strict";
      var util = require('util');
+     var operations = {
+        'newline': function(a) { return a.replace(/\n/g, "\\n"); },
+	'tabspace': function(a) {  return a.replace(/\t/g, "\\t") }
+      };
 
     function sanitizerNode(n) {
 	
         RED.nodes.createNode(this,n);
 	this.sanitizerType = n.sanitizerType;
 	this.exportType = n.exportType;
+	this.rules = n.rules || [];
+	this.checkall = n.checkall;
 
         var node = this;
 
@@ -38,8 +44,19 @@ module.exports = function(RED) {
 		if(node.sanitizerType=="simple"){
 			msg.payload = simpleSanitizeJSON(msg.payload);
 		}
-		else if(node.sanitizerType="escape"){
+		else if(node.sanitizerType=="escape"){
 			msg.payload =escape(msg.payload);
+		}
+		else if(node.sanitizerType=="advanced"){
+			    try {
+				for (var i=0; i<node.rules.length; i+=1) {
+				    var rule = node.rules[i];
+				    node.warn(rule.t);
+				    msg.payload = operations[rule.t](msg.payload);
+				}
+			    } catch(err) {
+				node.warn(err);
+			    }
 		}
 
 

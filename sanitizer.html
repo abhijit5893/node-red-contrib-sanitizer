@@ -23,20 +23,30 @@
   </div>
   <div class="form-row">
     <label for="node-input-sanitizerType"><i class="icon-filter"></i>Type</label>
-    <select type="text" id="node-input-sanitizerType">
+    <select type="text" id="node-input-sanitizerType" onchange="if(this.selectedIndex == 3) document.getElementById('node-input-rule-container-row').style.display = 'block'; else document.getElementById('node-input-rule-container-row').style.display = 'none';">
 	<option value="none" selected="selected">Dont Sanitize</option>
 	<option value="simple">Simple Sanitizer</option>
 	<option value="escape">Escape Sanitizer</option>
+	<option value="advanced">Advanced Sanitizer</option>
     </select>	
   </div>
+  <div class="form-row" id="node-input-rule-container-row" style= "display: none">
+      <div id="node-input-rule-container-div" style="box-sizing: border-box; border-radius: 5px; height: 310px; padding: 5px; border: 1px solid #ccc; overflow-y: scroll;">
+	<ol id="node-input-rule-container" style="margin: 0;"></ol>
+      </div>
+      <a href="#" class="editor-button editor-button-small" id="node-input-add-rule" style="margin-top: 4px;"><i class="fa fa-plus"></i> <span>Rule</span></a>
+     <label for="node-input-checkall"><i class="icon-tag"></i> Option:</label>
+      <select type="text" id="node-input-checkall">
+            <option value="all" selected="selected">Apply all the rules</option>
+            <option value="first"> Stop with the first rule</option>
+       </select>
+ </div>
   <div class="form-row">
     <label for="node-input-exportType"><i class="icon-tag"></i> Export as:</label>
-    <select type="text" id="node-input-exportType" placeholder="Export as:" >
+    <select type="text" id="node-input-exportType">
 	<option value="string" selected="selected">Export as string</option>
 	<option value="json">Export as JSON</option>
     </select>
-  </div>
-
   </div>
 </script>
 
@@ -52,6 +62,9 @@
             name: { value:"" }
           , sanitizerType: { value: "none", required:true }
 	  , exportType: {value:"string", required:true}
+	  , rules: {value:[{t:"\\n", v:"newline"}]}
+	  , outputs: {value:1}
+	  , checkall: {value:"all", required:true}
         }
         , inputs: 1
         , outputs: 1
@@ -63,6 +76,119 @@
 	   return this.name?"node_label_italic":"";	
 	}
 	, align: 'right'
+	, oneditprepare: function(){
+	    
+	    var operators = [
+                {v:"newline",t:"\\n"},
+                {v:"tabspace",t:"\\t"}
+            ];
+
+            function generateRule(i,rule) {
+                var container = $('<li/>',{style:"background: #fff; margin:0; padding:8px 0px; border-bottom: 1px solid #ccc;"});
+                var row = $('<div/>').appendTo(container);
+                $('<i style="color: #eee; cursor: move;" class="node-input-rule-handle fa fa-bars"></i>').appendTo(row);
+
+                var selectField = $('<select/>',{style:"width:120px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                for (var d in operators) {
+                    selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
+                }
+
+		
+                var btwnField = $('<span/>').appendTo(row);
+
+                var finalspan = $('<span/>',{style:"float: right;margin-right: 10px;"}).appendTo(row);
+                finalspan.append(' &#8594; <span class="node-input-rule-index">'+i+'</span> ');
+
+                var deleteButton = $('<a/>',{href:"#",class:"editor-button editor-button-small", style:"margin-top: 7px; margin-left: 5px;"}).appendTo(finalspan);
+                $('<i/>',{class:"fa fa-remove"}).appendTo(deleteButton);
+
+                selectField.change(function() {
+                    var type = selectField.children("option:selected").val();
+                    if (type.length < 4) {
+                        selectField.css({"width":"60px"});
+                    } else {
+                        selectField.css({"width":"120px"});
+                    }
+     
+                });
+
+		deleteButton.click(function() {
+                    container.css({"background":"#fee"});
+                    container.fadeOut(300, function() {
+                        $(this).remove();
+                        $("#node-input-rule-container").children().each(function(i) {
+                            $(this).find(".node-input-rule-index").html(i+1);
+                        });
+
+                    });
+                });
+
+		$("#node-input-rule-container").append(container);
+		selectField.find("option").filter(function() {return $(this).val() == rule.t;}).attr('selected',true);
+                if (typeof rule.v != "undefined") {
+                    valueField.val(rule.v);
+                }
+                selectField.change();
+		
+	     }
+
+	$("#node-input-add-rule").click(function() {
+                generateRule($("#node-input-rule-container").children().length+1,{t:"",v:""});
+                $("#node-input-rule-container-div").scrollTop($("#node-input-rule-container-div").get(0).scrollHeight);
+            });
+
+
+            function switchDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-input-rule-container-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $("#node-input-rule-container-div").css("height",height+"px");
+            };
+
+            $( "#node-input-rule-container" ).sortable({
+                axis: "y",
+                update: function( event, ui ) {
+                    var rules = $("#node-input-rule-container").children();
+                    rules.each(function(i) {
+                        $(this).find(".node-input-rule-index").html(i+1);
+                    });
+                },
+                handle:".node-input-rule-handle",
+                cursor: "move"
+            });
+            $( "#node-input-rule-container .node-input-rule-handle" ).disableSelection();
+
+            $( "#dialog" ).on("dialogresize", switchDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-switch');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    switchDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                $( "#dialog" ).off("dialogresize",switchDialogResize);
+            });
+        }
+	, oneditsave: function() {
+            var rules = $("#node-input-rule-container").children();
+            var ruleset;
+            var node = this;
+            node.rules= [];
+            rules.each(function(i) {
+                var rule = $(this);
+                var type = rule.find("select option:selected").val();
+                var r = {t:type};
+                node.rules.push(r);
+            });
+            node.outputs = node.rules.length;
+        }
+     
     });
 </script>
 
