@@ -96,7 +96,11 @@
 	    
 	    var operators = [
                 {v:"newline",t:"\\n"},
-                {v:"tabspace",t:"\\t"}
+                {v:"tabspace",t:"\\t"},
+                {v:"uri",t:"uri"},
+		{v:"htmlescape",t:"htmlescape"},
+		{v:"password",t:"password"},
+                {v:"null",t:"null"}
             ];
 
             function generateRule(i,rule) {

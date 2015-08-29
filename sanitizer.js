@@ -19,7 +19,19 @@ module.exports = function(RED) {
      var util = require('util');
      var operations = {
         'newline': function(a) { return a.replace(/\n/g, "\\n"); },
-	'tabspace': function(a) {  return a.replace(/\t/g, "\\t") }
+	'tabspace': function(a) {  return a.replace(/\t/g, "\\t"); },
+	'uri': function(a) {  return encodeURI(a); },
+	'htmlescape': function(a) {  return  escape(a); },
+	'password': function(a) { try{
+					var obj= JSON.parse(a);
+					pwdSanitizer(obj);
+					a=JSON.stringify(obj);
+				}
+				catch(err){
+					node.warn("JSON cannot be parsed");
+				} 
+			return a; },
+	'null': function(a) {  return 	a.replace(/\bnull\b/g, ""); }
       };
 	
      var lenOS = {
