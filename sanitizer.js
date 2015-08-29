@@ -21,6 +21,14 @@ module.exports = function(RED) {
         'newline': function(a) { return a.replace(/\n/g, "\\n"); },
 	'tabspace': function(a) {  return a.replace(/\t/g, "\\t") }
       };
+	
+     var lenOS = {
+	'windows' : 8191,
+	'ubuntu' : 2097152,
+	'centos' : 2621440,
+	'solaris' : 1048320,
+	'macosx' : 262144
+     };
 
     function sanitizerNode(n) {
 	
@@ -29,6 +37,7 @@ module.exports = function(RED) {
 	this.exportType = n.exportType;
 	this.rules = n.rules || [];
 	this.checkall = n.checkall;
+	this.lengthRule= n.lengthRule;
 
         var node = this;
 
@@ -40,18 +49,46 @@ module.exports = function(RED) {
 				}
 			}
 		}
+		try{
+			JSON.parse(msg.payload);
+		}
+		catch(err){
+			node.warn("JSON is improper due to "+err);
+		}
 		
 		if(node.sanitizerType=="simple"){
 			msg.payload = simpleSanitizeJSON(msg.payload);
 		}
-		else if(node.sanitizerType=="escape"){
+		else if(node.sanitizerType=="len"){
+			var msglen= msg.payload.length;
+			if (msglen > lenOS[node.lengthRule]){
+				msg.payload = msg.payload.substring(0, lenOS[node.lengthRule]);
+			}
+			
+		}
+		else if(node.sanitizerType=="uri"){
+			msg.payload = encodeURI(msg.payload);
+		}
+		else if(node.sanitizerType=="htmlescape"){
 			msg.payload =escape(msg.payload);
+		}
+		else if(node.sanitizerType=="password"){
+			try{
+				var obj= JSON.parse(msg.payload);
+				pwdSanitizer(obj);
+				msg.payload=JSON.stringify(obj);
+			}
+			catch(err){
+				node.warn("JSON cannot be parsed");
+			}
+		}
+		else if(node.sanitizerType=="nll"){
+			msg.payload= msg.payload.replace(/\bnull\b/g, "");
 		}
 		else if(node.sanitizerType=="advanced"){
 			    try {
 				for (var i=0; i<node.rules.length; i+=1) {
 				    var rule = node.rules[i];
-				    node.warn(rule.t);
 				    msg.payload = operations[rule.t](msg.payload);
 				}
 			    } catch(err) {
@@ -79,6 +116,18 @@ module.exports = function(RED) {
         });
     }
 
+    function pwdSanitizer(obj){
+		var keys = Object.keys(obj);
+		for (var item in keys){
+		 var key = keys[item];
+		 if(typeof obj[key]=="object"){
+		   pwdSanitizer(obj[key]);
+		 }
+		 if(key == "password"|| key == "pwd" || key == "passwd"){
+		    obj[key]= obj[key].replace(/./g,"#");
+		  }
+		 }
+	}
     function simpleSanitizeJSON(msg){	
     	return msg.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\f/g, "\\f").replace(/"/g,"\\\"").replace	(/'/g,"\\\'").replace(/\&/g, "\\&"); 
    }

@@ -23,12 +23,27 @@
   </div>
   <div class="form-row">
     <label for="node-input-sanitizerType"><i class="icon-filter"></i>Type</label>
-    <select type="text" id="node-input-sanitizerType" onchange="if(this.selectedIndex == 3) document.getElementById('node-input-rule-container-row').style.display = 'block'; else document.getElementById('node-input-rule-container-row').style.display = 'none';">
+    <select type="text" id="node-input-sanitizerType" 
+	onchange=" if(this.selectedIndex == 7) document.getElementById('node-input-rule-container-row').style.display = 'block'; else document.getElementById('node-input-rule-container-row').style.display = 'none'; if(this.selectedIndex == 2) document.getElementById('node-input-lengthRule-container').style.display = 'block'; else document.getElementById('node-input-lengthRule-container').style.display = 'none';">
 	<option value="none" selected="selected">Dont Sanitize</option>
 	<option value="simple">Simple Sanitizer</option>
-	<option value="escape">Escape Sanitizer</option>
+	<option value="len">Length Sanitizer</option>
+	<option value="uri">URI Sanitizer</option>
+	<option value="htmlescape">HTML Escape Sanitizer</option>
+	<option value="password">Password Sanitizer</option>
+	<option value="nll">Null Sanitizer</option>
 	<option value="advanced">Advanced Sanitizer</option>
     </select>	
+  </div>
+  <div class="form-row" id="node-input-lengthRule-container" style="display: none">	
+     <label for="node-input-lengthRule"><i class="icon-filter"></i> Select:</label>	
+     <select type="text" id="node-input-lengthRule">
+	<option value="windows" selected="selected">WINDOWS</option>
+	<option value="ubuntu">UBUNTU</option>
+	<option value="centos">CENT OS</option>
+	<option value="solaris">SOLARIS</option>
+	<option value="macosx">MAC OS X</option>
+     </select>
   </div>
   <div class="form-row" id="node-input-rule-container-row" style= "display: none">
       <div id="node-input-rule-container-div" style="box-sizing: border-box; border-radius: 5px; height: 310px; padding: 5px; border: 1px solid #ccc; overflow-y: scroll;">
@@ -64,7 +79,8 @@
 	  , exportType: {value:"string", required:true}
 	  , rules: {value:[{t:"\\n", v:"newline"}]}
 	  , outputs: {value:1}
-	  , checkall: {value:"all", required:true}
+	  , checkall: {value:"all"}
+	  , lengthRule: {value: "windows"}
         }
         , inputs: 1
         , outputs: 1
@@ -178,6 +194,7 @@
 	, oneditsave: function() {
             var rules = $("#node-input-rule-container").children();
             var ruleset;
+	    var flag =0;
             var node = this;
             node.rules= [];
             rules.each(function(i) {
@@ -185,8 +202,10 @@
                 var type = rule.find("select option:selected").val();
                 var r = {t:type};
                 node.rules.push(r);
+		flag = 1;
             });
-            node.outputs = node.rules.length;
+	    if(flag==1) node.outputs = node.rules.length; 
+	    else node.outputs=1;
         }
      
     });
