@@ -1,21 +1,22 @@
 # node-red-contrib-sanitizer
 
-Technical portion of the interview for HPC Student Web Developer
+JSON Sanitizer node has been created with the purpose of sanitizing the JSON content against mallicious scripts and system breakdowns
 
-## Goal
+## Features
 
-The goal of this technical excercise is to create a new node in the [NodeRED](http://nodered.org/) framework from the specifications given below. Focus should be placed on correctness, documentation, and code clarity.
+1. Can handle JSON as string and JSON as object as input. The user has the option to decide the type of output (string/object)
+2. Different types of sanitizers such as password, length sanitizer and null sanitizer
+3. Advanced sanitizer options to apply multiple rules on the input
+4. Password sanitizer escape the password value to provide data privacy. Tested to work with nested JSONs also. Note: Privacy sanitizer expects properly parsed JSON content.
+5. The sanitizer output is 100% safe for injection. 
+6. Tested to work in Mozilla firefox/Chrome in UBUNTU 14.10 (Linux distro)
 
-## Instructions
+## Credits and feedback
 
-1. Fork this repository.
-2. Install NodeRED
-3. Develop the specified node, starting with the templates provided in this repository.
-4. Add the node to NodeRED.
-5. Submit a pull request with your changes.
+1. This code is a part of the technical interview for HPC web student developer headed by Zeb
+2. To develop this node, I have been going though exising nodes, especially Switch node.
+3. The sanitizing logic is based on my understanding of JSON Sanitizing and may vary from your perspective. Correct me if wrong.
+4. Beta testing is now open. Feel free to report bugs.
+5. Please feel free to provide suggestions and impovements at abhijit5893@gmail.com.
 
-## Sanitizer Node Specifications
 
-* The sanitizer node should take a JSON object in **msg.payload**, sanitize it based on a user-defined configuration, and then send the sanitized object on **msg.payload**.
-* The sanitizer node's edit template (defined in sanitizer.html) should allow the user to specify an object configuration. This configuration will define how the object passed on **msg.payload** is sanitized. The built-in [switch node](https://github.com/node-red/node-red/blob/master/nodes/core/logic/10-switch.html) should provide a good starting point for building the sanitizer node's edit template.
-* This [Stackoverflow answer](http://stackoverflow.com/a/25983468) should offer a good starting for what to look for when sanitizing a JSON object.

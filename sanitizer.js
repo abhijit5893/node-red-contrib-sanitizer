@@ -54,6 +54,7 @@ module.exports = function(RED) {
         var node = this;
 
         this.on('input', function (msg) {
+		/* The node is programmed to handle JSON as string and JSON as object as input*/
 		if(msg.hasOwnProperty("payload")){
 			if(typeof msg.payload == "object"){
 				if((!Buffer.isBuffer(msg.payload)) && (!util.isArray(msg.payload))){
@@ -61,6 +62,7 @@ module.exports = function(RED) {
 				}
 			}
 		}
+		/* If JSON is improperly parsed, users are warned*/
 		try{
 			JSON.parse(msg.payload);
 		}
@@ -68,6 +70,7 @@ module.exports = function(RED) {
 			node.warn("JSON is improper due to "+err);
 		}
 		
+		/* Different types of sanitizing options. (Switch can also be used in place of if-else) */
 		if(node.sanitizerType=="simple"){
 			msg.payload = simpleSanitizeJSON(msg.payload);
 		}
@@ -122,12 +125,14 @@ module.exports = function(RED) {
 			}
 	
         });
-
+        
+        /* Do nothing on close*/
         this.on("close", function() {
 
         });
     }
-
+    
+    /* Utility function for password sanitizer */	
     function pwdSanitizer(obj){
 		var keys = Object.keys(obj);
 		for (var item in keys){
@@ -140,6 +145,8 @@ module.exports = function(RED) {
 		  }
 		 }
 	}
+
+    /* Simple Sanitizer */
     function simpleSanitizeJSON(msg){	
     	return msg.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\f/g, "\\f").replace(/"/g,"\\\"").replace	(/'/g,"\\\'").replace(/\&/g, "\\&"); 
    }

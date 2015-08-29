@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
+<!-- JSON Sanitizer node has been created with the purpose of sanitizing the JSON content against mallicious scripts and system breakdowns-->
 
 <!-- This creates and configures the onscreen elements of the node           -->
 <script type="text/x-red" data-template-name="sanitizer">
@@ -27,12 +27,12 @@
 	onchange=" if(this.selectedIndex == 7) document.getElementById('node-input-rule-container-row').style.display = 'block'; else document.getElementById('node-input-rule-container-row').style.display = 'none'; if(this.selectedIndex == 2) document.getElementById('node-input-lengthRule-container').style.display = 'block'; else document.getElementById('node-input-lengthRule-container').style.display = 'none';">
 	<option value="none" selected="selected">Dont Sanitize</option>
 	<option value="simple">Simple Sanitizer</option>
-	<option value="len">Length Sanitizer</option>
+	<option value="len">Length Sanitizer</option> //Targetting operating systems with limitations in string length
 	<option value="uri">URI Sanitizer</option>
 	<option value="htmlescape">HTML Escape Sanitizer</option>
 	<option value="password">Password Sanitizer</option>
 	<option value="nll">Null Sanitizer</option>
-	<option value="advanced">Advanced Sanitizer</option>
+	<option value="advanced">Advanced Sanitizer</option> //Advanced option to perform multiple sanitizing in one go
     </select>	
   </div>
   <div class="form-row" id="node-input-lengthRule-container" style="display: none">	
@@ -65,10 +65,12 @@
   </div>
 </script>
 
+<!-- Next, some simple help text is provided for the node.                   -->
 <script type="text/x-red" data-help-name="sanitizer">
 	<p>The sanitizer node should take a JSON object in <b>msg.payload</b>, sanitize it based on a user-defined configuration, and then send the sanitized object on 	<b>msg.payload</b>.</p>
 </script>
 
+<!-- Finally, the node type is registered along with all of its properties   -->
 <script type="text/javascript">
     RED.nodes.registerType('sanitizer', {
         category: 'function'
@@ -102,7 +104,7 @@
 		{v:"password",t:"password"},
                 {v:"null",t:"null"}
             ];
-
+	    /*Function to generate dynamic HTML content to display the different sanitizing rules that can be applied to the input */
             function generateRule(i,rule) {
                 var container = $('<li/>',{style:"background: #fff; margin:0; padding:8px 0px; border-bottom: 1px solid #ccc;"});
                 var row = $('<div/>').appendTo(container);
@@ -196,6 +198,7 @@
             });
         }
 	, oneditsave: function() {
+	    /*  This function is called when User configuration is complete*/
             var rules = $("#node-input-rule-container").children();
             var ruleset;
 	    var flag =0;
